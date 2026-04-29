@@ -256,6 +256,16 @@ app.delete('/api/admin/projects/:id', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/api/make-admin', async (req, res) => {
+    try {
+        await pool.query("UPDATE users SET role = 'admin' WHERE email = 'admin@insighthub.com'");
+        res.json({ message: 'Done! User is now admin' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 app.listen(PORT, () => {       
     console.log(`Server is running on http://localhost:${PORT}`);
 });
