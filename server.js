@@ -161,7 +161,8 @@ app.post('/api/projects', authenticateToken, async (req, res) => {
             [title, abstract, department, supervisor, year, tags, technology, file_url, video_url, req.user.id]
         );
         res.json({ message: 'Project submitted!', project: result.rows[0] });
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -175,7 +176,8 @@ app.post('/api/bookmarks/:projectId', authenticateToken, async (req, res) => {
             [req.user.id, req.params.projectId]
         );
         res.json({ message: 'Bookmarked!' });
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ error: 'Already bookmarked' });
     }
 });
@@ -190,7 +192,8 @@ app.get('/api/bookmarks', authenticateToken, async (req, res) => {
             [req.user.id]
         );
         res.json(result.rows);
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -204,7 +207,8 @@ app.post('/api/comments/:projectId', authenticateToken, async (req, res) => {
             [content, req.user.id, req.params.projectId]
         );
         res.json(result.rows[0]);
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -218,7 +222,8 @@ app.get('/api/comments/:projectId', async (req, res) => {
             [req.params.projectId]
         );
         res.json(result.rows);
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -233,7 +238,8 @@ app.get('/api/admin/projects', authenticateToken, async (req, res) => {
              ORDER BY projects.created_at DESC`
         );
         res.json(result.rows);
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -244,18 +250,21 @@ app.put('/api/admin/projects/:id', authenticateToken, async (req, res) => {
     try {
         await pool.query('UPDATE projects SET status = $1 WHERE id = $2', [status, req.params.id]);
         res.json({ message: `Project ${status}!` });
-    } catch (error) {
+    } 
+    catch (error) {
         res.status(500).json({ error: 'Server error' });
     }
 });
 
 app.delete('/api/admin/projects/:id', authenticateToken, async (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Admin only' });
     try {
+        await pool.query('DELETE FROM comments WHERE project_id = $1', [req.params.id]);
+        await pool.query('DELETE FROM bookmarks WHERE project_id = $1', [req.params.id]);
         await pool.query('DELETE FROM projects WHERE id = $1', [req.params.id]);
-        res.json({ message: 'Project deleted!' });
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        res.json({ message: 'Project deleted' });
+    } 
+    catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 
