@@ -67,6 +67,9 @@ createTables();
 app.post('/api/register', async (req, res) => {
     const { name, email, password } = req.body;
     try {
+        // We use bcrypt.hash to scramble the password before saving it.
+        // This is for security because even if the database is leaked, 
+        // hackers can't see the actual user passwords.
         const hashedPassword = await bcrypt.hash(password, 10);
         const result = await pool.query(
             'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, role',
